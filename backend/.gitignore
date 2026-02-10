@@ -42,3 +42,22 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### PostgreSQL & Database ###
+*.sql
+*.psql
+*.dump
+*.backup
+# 로컬 테스트용 DB 데이터 디렉토리 (프로젝트 내 생성 시)
+pgdata/
+
+
+### OS & Log ###
+.DS_Store
+Thumbs.db
+*.log
+logs/
+
+### IntelliJ / Build ###
+.gradle/
+.idea/

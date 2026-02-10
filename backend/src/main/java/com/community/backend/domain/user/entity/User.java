@@ -1,4 +1,4 @@
-package com.community.backend.domain.user;
+package com.community.backend.domain.user.entity;
 
 
 import jakarta.persistence.*;
@@ -26,6 +26,9 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY) //Related to bigserial in DB table
     private long id;
 
+    @Column(nullable = false, unique = true, length = 20)
+    private String nickname;
+
     @Column(nullable = false, unique = true, length = 50)
     private String username;
 
@@ -47,9 +50,4 @@ public class User {
     @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
-
-
-    /// Logics ///
-
-
 }
