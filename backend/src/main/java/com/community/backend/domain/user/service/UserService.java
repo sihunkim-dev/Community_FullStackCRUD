@@ -3,6 +3,7 @@ package com.community.backend.domain.user.service;
 import com.community.backend.domain.user.dto.FindUsernameRequest;
 import com.community.backend.domain.user.dto.LoginRequest;
 import com.community.backend.domain.user.dto.SignupRequest;
+import com.community.backend.domain.user.dto.UserAdminResponse;
 import com.community.backend.domain.user.entity.Role;
 import com.community.backend.domain.user.entity.User;
 import com.community.backend.domain.user.repository.UserRepository;
@@ -12,6 +13,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -70,6 +74,19 @@ public class UserService {
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .build();
+    }
+
+    @Transactional(readOnly = true)
+    public List<UserAdminResponse> getAllUsersForAdmin(){
+        return userRepository.findAll().stream()
+                .map(user -> UserAdminResponse.builder()
+                        .id(user.getId())
+                        .username(user.getUsername())
+                        .nickname(user.getNickname())
+                        .role(user.getRole())
+                        .postCount(user.getPosts().size())
+                        .build())
+                .collect(Collectors.toList());
     }
 }
 
