@@ -7,12 +7,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/likes")
+@RequestMapping("/api/posts")
 @RequiredArgsConstructor
 public class PostLikeController {
     private final PostLikeService postLikeService;
 
-    @PostMapping("/{postId}")
+    @PostMapping("/{postId}/like")
     public ResponseEntity<Void> toggleLike(@PathVariable Long postId, Authentication authentication) {
         postLikeService.toggleLike(postId, authentication.getName());
         return ResponseEntity.ok().build();

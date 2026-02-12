@@ -7,6 +7,7 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Getter
@@ -30,17 +31,22 @@ public class Post extends BaseTimeEntity {
     @Column(name = "view_count", columnDefinition = "bigint default 0")
     private Long viewCount = 0L;
 
+    @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private Category category;
+
+    public void increaseViewCount() {
+        this.viewCount++;
+    }
 
     @Builder
     public Post(String title, String content, User user, Category category) {
         this.title = title;
         this.content = content;
         this.user = user;
-        this.category = category;
         this.viewCount = 0L;
+        this.category = category;
     }
 
     public void update(String title, String content) {

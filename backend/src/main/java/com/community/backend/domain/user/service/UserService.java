@@ -83,10 +83,18 @@ public class UserService {
                         .id(user.getId())
                         .username(user.getUsername())
                         .nickname(user.getNickname())
+                        .email(user.getEmail())
                         .role(user.getRole())
                         .postCount(user.getPosts().size())
                         .build())
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void deleteUser(Long id){
+        User user = userRepository.findById(id)
+                .orElseThrow(()->new IllegalArgumentException("User not found"));
+        userRepository.delete(user);
     }
 }
 

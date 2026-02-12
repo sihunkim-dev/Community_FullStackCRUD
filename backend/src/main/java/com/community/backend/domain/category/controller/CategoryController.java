@@ -1,7 +1,7 @@
 package com.community.backend.domain.category.controller;
 
 import com.community.backend.domain.category.dto.CategoryRequest;
-import com.community.backend.domain.category.entity.Category;
+import com.community.backend.domain.category.dto.CategoryResponse;
 import com.community.backend.domain.category.service.CategoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +21,7 @@ public class CategoryController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Category>> getAllCategories() {
+    public ResponseEntity<List<CategoryResponse>> getAllCategories() {
         return ResponseEntity.ok(categoryService.getAllCategories());
     }
 

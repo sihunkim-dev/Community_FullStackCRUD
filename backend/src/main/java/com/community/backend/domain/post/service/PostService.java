@@ -2,6 +2,7 @@ package com.community.backend.domain.post.service;
 
 import com.community.backend.domain.category.Repository.CategoryRepository;
 import com.community.backend.domain.category.entity.Category;
+import com.community.backend.domain.like.service.PostLikeService;
 import com.community.backend.domain.post.dto.PostRequest;
 import com.community.backend.domain.post.dto.PostResponse;
 import com.community.backend.domain.post.entity.Post;
@@ -10,6 +11,8 @@ import com.community.backend.domain.user.entity.Role;
 import com.community.backend.domain.user.entity.User;
 import com.community.backend.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -26,7 +29,7 @@ public class PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
-
+    private final PostLikeService postLikeService;
     @Transactional
     public Long createPost(PostRequest request) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -63,20 +66,31 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public List<PostResponse> getAllPosts(){
-        return postRepository.findAll().stream()
-                .map(PostResponse::new)
-                .sorted((p1,p2)->p2.getCreatedDate().compareTo(p1.getCreatedDate()))
-                .collect(Collectors.toList());
+    public Page<PostResponse> getAllPosts(Pageable pageable) {
+        return postRepository.findAll(pageable).map(PostResponse::new);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional()
     public PostResponse getPost(Long postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new NoSuchElementException("Post not found"));
 
-        return new PostResponse(post);
+        post.increaseViewCount();
+        PostResponse response = new PostResponse(post);
+        response.setLikeCount(postLikeService.countLikes(postId));
+
+        return response;
     }
+
+    @Transactional(readOnly = true)
+    public List<PostResponse> getPostsByUserId(Long userId){
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NoSuchElementException("User not found"));
+        return postRepository.findByUser(user).stream()
+                .map(PostResponse::new)
+                .collect(Collectors.toList());
+    }
+
 
     @Transactional
     public Long updatePost(Long postId, PostRequest request) {
@@ -89,8 +103,26 @@ public class PostService {
             throw new AccessDeniedException("You do not have permission to update this post");
         }
 
-        // Dirty Checking으로 인해 Transaction이 끝날 때 Update 쿼리가 날아갑니다.
         post.update(request.getTitle(), request.getContent());
+
+        if (request.getCategoryId() != null) {
+            Category category = categoryRepository.findById(request.getCategoryId())
+                    .orElseThrow(() -> new NoSuchElementException("Category not found"));
+
+            // Post 엔티티에 setCategory 메서드나 updateCategory 메서드가 있어야 합니다.
+            post.setCategory(category);
+        }
+
         return postId;
     }
+
+    @Transactional(readOnly = true)
+    public List<PostResponse> getMyPosts(String username){
+        List<Post> posts = postRepository.findByUser_Username(username);
+
+        return posts.stream()
+                .map(PostResponse::new)
+                .collect(Collectors.toList());
+    }
+
 }

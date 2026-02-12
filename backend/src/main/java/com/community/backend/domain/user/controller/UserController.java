@@ -3,16 +3,16 @@ package com.community.backend.domain.user.controller;
 import com.community.backend.domain.user.dto.FindUsernameRequest;
 import com.community.backend.domain.user.dto.LoginRequest;
 import com.community.backend.domain.user.dto.SignupRequest;
+import com.community.backend.domain.user.dto.UserAdminResponse;
 import com.community.backend.domain.user.service.UserService;
 import com.community.backend.global.jwt.TokenInfo;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
@@ -37,5 +37,16 @@ public class UserController {
     public ResponseEntity<TokenInfo> login(@RequestBody LoginRequest request) {
         TokenInfo tokenInfo =userService.login(request);
         return ResponseEntity.ok(tokenInfo);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<UserAdminResponse>> getAllUsers() {
+        return ResponseEntity.ok(userService.getAllUsersForAdmin());
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteUser(@PathVariable Long id) {
+        userService.deleteUser(id);
+        return ResponseEntity.ok("User Deleted Successfully");
     }
 }

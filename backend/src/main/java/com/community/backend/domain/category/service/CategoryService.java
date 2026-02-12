@@ -2,12 +2,14 @@ package com.community.backend.domain.category.service;
 
 import com.community.backend.domain.category.Repository.CategoryRepository;
 import com.community.backend.domain.category.dto.CategoryRequest;
+import com.community.backend.domain.category.dto.CategoryResponse;
 import com.community.backend.domain.category.entity.Category;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -22,16 +24,15 @@ public class CategoryService {
             throw new IllegalArgumentException("Already Exists");
         }
 
-        Category category = Category.builder()
-                .name(request.getName())
-                .description("")
-                .build();
+        Category category = categoryRepository.save(request.toEntity());
 
-        return categoryRepository.save(category).getId();
+        return category.getId();
     }
 
-    public List<Category> getAllCategories() {
-        return categoryRepository.findAll();
+    public List<CategoryResponse> getAllCategories() {
+        return categoryRepository.findAll().stream()
+                .map(CategoryResponse::new)
+                .collect(Collectors.toList());
     }
 
     @Transactional
